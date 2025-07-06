@@ -34,6 +34,8 @@ RUN apk update && \
     npm \
     bc \
     procps \
+    objection \
+    apksigner \
     wget && \
     rm -rf /var/cache/apk/*
 

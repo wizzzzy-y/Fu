@@ -93,6 +93,9 @@ RUN wget https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-
     chmod +x /opt/jadx/bin/jadx && \
     ln -s /opt/jadx/bin/jadx /usr/local/bin/jadx
 
+# Install Python dependencies for your Vps.py script
+RUN pip3 install --no-cache-dir python-telegram-bot --break-system-packages
+
 # Install Frida tools
 RUN pip3 install --no-cache-dir frida-tools --break-system-packages
 

@@ -51,7 +51,7 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
     rm -rf /tmp/sdk-temp
 
 # Now set the PATH correctly for SDK tools, including build-tools
-ENV ANDROID_BUILD_TOOLS_VERSION="34.0.0" # Keep this here for clarity and PATH
+ENV ANDROID_BUILD_TOOLS_VERSION="34.0.0"
 ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/build-tools/${ANDROID_BUILD_TOOLS_VERSION}"
 
 # Accept Android SDK licenses
@@ -98,7 +98,7 @@ RUN wget https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-
     ln -s /opt/jadx/bin/jadx /usr/local/bin/jadx
 
 # Install Python dependencies for your Vps.py script
-RUN pip3 install --no-cache-dir python-telegram-bot --break-system-packages
+RUN pip3 install --no-cache-dir python-telegram-bot requests --break-system-packages
 
 # Install Frida tools
 RUN pip3 install --no-cache-dir frida-tools --break-system-packages

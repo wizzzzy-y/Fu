@@ -50,8 +50,9 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
     rm /tmp/commandlinetools.zip && \
     rm -rf /tmp/sdk-temp
 
-# Now set the PATH correctly for SDK tools
-ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin"
+# Now set the PATH correctly for SDK tools, including build-tools
+ENV ANDROID_BUILD_TOOLS_VERSION="34.0.0" # Keep this here for clarity and PATH
+ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/build-tools/${ANDROID_BUILD_TOOLS_VERSION}"
 
 # Accept Android SDK licenses
 RUN yes | sdkmanager --licenses
@@ -59,8 +60,7 @@ RUN yes | sdkmanager --licenses
 # Install Android SDK Platform-Tools
 RUN sdkmanager "platform-tools"
 
-# Install Android SDK Build-Tools (this will include apksigner)
-ENV ANDROID_BUILD_TOOLS_VERSION="34.0.0"
+# Install Android SDK Build-Tools (this will include apksigner and aapt)
 RUN sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}"
 
 # Install Objection (Python package, must be done after pip is available)
@@ -75,7 +75,7 @@ RUN wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_${APKTOOL_V
 # Install Smali/Baksmali
 ENV SMALI_VERSION="2.5.2"
 RUN wget https://bitbucket.org/JesusFreke/smali/downloads/smali-${SMALI_VERSION}.jar -O /usr/local/bin/smali.jar && \
-    wget https://bitbucket.com/JesusFreke/smali/downloads/baksmali-${SMALI_VERSION}.jar -O /usr/local/bin/baksmali.jar && \
+    wget https://bitbucket.org/JesusFreke/smali/downloads/baksmali-${SMALI_VERSION}.jar -O /usr/local/bin/baksmali.jar && \
     echo '#!/usr/bin/env sh\njava -jar /usr/local/bin/smali.jar "$@"' > /usr/local/bin/smali && \
     echo '#!/usr/bin/env sh\njava -jar /usr/local/bin/baksmali.jar "$@"' > /usr/local/bin/baksmali && \
     chmod +x /usr/local/bin/smali /usr/local/bin/baksmali

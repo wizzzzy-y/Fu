@@ -1,13 +1,15 @@
+# --- Builder Stage (Optional, if you have Go application code) ---
 FROM golang:1.16.2-alpine3.13 as builder
 WORKDIR /app
 COPY . ./
 # This is where one could build the application code as well.
+# Example: RUN go build -o myapp .
 
 
-# The tailscale stage is entirely removed.
-
-
+# --- Main Application Stage ---
 FROM alpine:latest
+
+# Install core system dependencies
 RUN apk update && \
     apk add --no-cache \
     ca-certificates \
@@ -34,8 +36,6 @@ RUN apk update && \
     npm \
     bc \
     procps \
-    objection \
-    apksigner \
     wget && \
     rm -rf /var/cache/apk/*
 
@@ -50,7 +50,7 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
     rm /tmp/commandlinetools.zip && \
     rm -rf /tmp/sdk-temp
 
-# Now set the PATH correctly
+# Now set the PATH correctly for SDK tools
 ENV PATH="${PATH}:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin"
 
 # Accept Android SDK licenses
@@ -59,10 +59,12 @@ RUN yes | sdkmanager --licenses
 # Install Android SDK Platform-Tools
 RUN sdkmanager "platform-tools"
 
-# Install Android SDK Build-Tools
+# Install Android SDK Build-Tools (this will include apksigner)
 ENV ANDROID_BUILD_TOOLS_VERSION="34.0.0"
 RUN sdkmanager "build-tools;${ANDROID_BUILD_TOOLS_VERSION}"
 
+# Install Objection (Python package, must be done after pip is available)
+RUN pip3 install --no-cache-dir objection --break-system-packages
 
 # Install Apktool
 ENV APKTOOL_VERSION=2.9.3
@@ -73,7 +75,7 @@ RUN wget https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_${APKTOOL_V
 # Install Smali/Baksmali
 ENV SMALI_VERSION="2.5.2"
 RUN wget https://bitbucket.org/JesusFreke/smali/downloads/smali-${SMALI_VERSION}.jar -O /usr/local/bin/smali.jar && \
-    wget https://bitbucket.org/JesusFreke/smali/downloads/baksmali-${SMALI_VERSION}.jar -O /usr/local/bin/baksmali.jar && \
+    wget https://bitbucket.com/JesusFreke/smali/downloads/baksmali-${SMALI_VERSION}.jar -O /usr/local/bin/baksmali.jar && \
     echo '#!/usr/bin/env sh\njava -jar /usr/local/bin/smali.jar "$@"' > /usr/local/bin/smali && \
     echo '#!/usr/bin/env sh\njava -jar /usr/local/bin/baksmali.jar "$@"' > /usr/local/bin/baksmali && \
     chmod +x /usr/local/bin/smali /usr/local/bin/baksmali
